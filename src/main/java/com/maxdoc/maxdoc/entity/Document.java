@@ -2,6 +2,9 @@ package com.maxdoc.maxdoc.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.GenericGenerator;
+
+import java.util.UUID;
 
 @Data
 @Entity
@@ -9,8 +12,13 @@ import lombok.Data;
 public class Document {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(updatable = false, nullable = false)
+    private UUID id;
 
     @Column(nullable = false)
     private String title;
@@ -32,5 +40,10 @@ public class Document {
         MINUTA,
         VIGENTE,
         OBSOLETO
+    }
+
+    public void incrementVersion() {
+        this.version += 1;
+        this.phase = Phase.MINUTA;
     }
 }
