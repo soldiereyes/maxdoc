@@ -1,6 +1,6 @@
 package com.maxdoc.maxdoc.dto;
 
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.Setter;
 
