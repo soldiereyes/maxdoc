@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DocumentService {
@@ -26,5 +27,32 @@ public class DocumentService {
 
     public List<Document> getAllDocuments() {
         return documentRepository.findAll();
+    }
+
+    public Document updatePhase(UUID id, Document.Phase newPhase) {
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Documento não encontrado."));
+        document.setPhase(newPhase);
+        return documentRepository.save(document);
+    }
+
+    public Document createNewVersion(UUID id) {
+        Document existingDocument = documentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Documento encontrado."));
+        if (existingDocument.getPhase() != Document.Phase.VIGENTE) {
+            throw new IllegalStateException("Somente documentos vigentes podem gerar novas versões.");
+        }
+
+        existingDocument.setPhase(Document.Phase.OBSOLETO);
+        documentRepository.save(existingDocument);
+
+        Document newVersion = new Document();
+        newVersion.setTitle(existingDocument.getTitle());
+        newVersion.setDescription(existingDocument.getDescription());
+        newVersion.setSigla(existingDocument.getSigla());
+        newVersion.setVersion(existingDocument.getVersion() + 1);
+        newVersion.setPhase(Document.Phase.MINUTA);
+
+        return documentRepository.save(newVersion);
     }
 }
