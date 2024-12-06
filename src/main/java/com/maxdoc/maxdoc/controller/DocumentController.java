@@ -58,6 +58,19 @@ public class DocumentController {
         return ResponseEntity.ok(mapToResponseDTO(newVersion));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocument(@PathVariable("id") UUID id) {
+        documentService.deleteDocumentById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<DocumentResponseDTO> updateDocument(
+            @PathVariable UUID id,
+            @RequestBody DocumentRequestDTO requestDTO) {
+        Document updatedDocument = documentService.updateDocument(id, requestDTO);
+        return ResponseEntity.ok(mapToResponseDTO(updatedDocument));
+    }
 
     private DocumentResponseDTO mapToResponseDTO(Document document) {
         DocumentResponseDTO responseDTO = new DocumentResponseDTO();
