@@ -15,6 +15,4 @@ public class DocumentResponseDTO {
     private String sigla;
     private int version;
     private String phase;
-
-
 }

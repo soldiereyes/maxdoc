@@ -10,8 +10,6 @@ public class DocumentRequestDTO {
     private String description;
     private String sigla;
     private int version;
-
-
 }
 
 
