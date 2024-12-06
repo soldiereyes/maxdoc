@@ -6,6 +6,7 @@ import com.maxdoc.maxdoc.repository.DocumentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,24 +37,22 @@ public class DocumentService {
         return documentRepository.save(document);
     }
 
-    public Document createNewVersion(UUID id) {
-        Document existingDocument = documentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Documento encontrado."));
-        if (existingDocument.getPhase() != Document.Phase.VIGENTE) {
-            throw new IllegalStateException("Somente documentos vigentes podem gerar novas versões.");
+    public Document createNewVersion(UUID documentId) {
+        Optional<Document> existingDocumentOpt = documentRepository.findById(documentId);
+        if (existingDocumentOpt.isEmpty()) {
+            throw new IllegalArgumentException("Documento não encontrado com o ID: " + documentId);
         }
 
-        existingDocument.setPhase(Document.Phase.OBSOLETO);
-        documentRepository.save(existingDocument);
+        Document existingDocument = existingDocumentOpt.get();
+        Document newVersionDocument = new Document();
+        newVersionDocument.setTitle(existingDocument.getTitle());
+        newVersionDocument.setDescription(existingDocument.getDescription());
+        newVersionDocument.setSigla(existingDocument.getSigla());
+        newVersionDocument.setVersion(existingDocument.getVersion() + 1);
+        newVersionDocument.setPhase(Document.Phase.MINUTA);
 
-        Document newVersion = new Document();
-        newVersion.setTitle(existingDocument.getTitle());
-        newVersion.setDescription(existingDocument.getDescription());
-        newVersion.setSigla(existingDocument.getSigla());
-        newVersion.setVersion(existingDocument.getVersion() + 1);
-        newVersion.setPhase(Document.Phase.MINUTA);
-
-        return documentRepository.save(newVersion);
+        // Salva o novo documento no banco de dados
+        return documentRepository.save(newVersionDocument);
     }
 
     public void deleteDocumentById(UUID id) {
