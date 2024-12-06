@@ -30,13 +30,6 @@ public class DocumentService {
         return documentRepository.findAll();
     }
 
-    public Document updatePhase(UUID id, Document.Phase newPhase) {
-        Document document = documentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Documento não encontrado."));
-        document.setPhase(newPhase);
-        return documentRepository.save(document);
-    }
-
     public Document createNewVersion(UUID documentId) {
         Optional<Document> existingDocumentOpt = documentRepository.findById(documentId);
         if (existingDocumentOpt.isEmpty()) {
@@ -51,7 +44,6 @@ public class DocumentService {
         newVersionDocument.setVersion(existingDocument.getVersion() + 1);
         newVersionDocument.setPhase(Document.Phase.MINUTA);
 
-        // Salva o novo documento no banco de dados
         return documentRepository.save(newVersionDocument);
     }
 
@@ -72,6 +64,33 @@ public class DocumentService {
         existingDocument.setVersion(requestDTO.getVersion());
 
         return documentRepository.save(existingDocument);
+    }
+
+    public Document updatePhase(UUID documentId, Document.Phase newPhase) {
+        Optional<Document> optionalDocument = documentRepository.findById(documentId);
+        if (optionalDocument.isEmpty()) {
+            throw new IllegalArgumentException("Documento não encontrado com o ID: " + documentId);
+        }
+
+        Document document = optionalDocument.get();
+
+        if (!isValidPhaseTransition(document.getPhase(), newPhase)) {
+            throw new IllegalStateException("Transição de fase inválida: " + document.getPhase() + " -> " + newPhase);
+        }
+
+        document.setPhase(newPhase);
+        return documentRepository.save(document);
+    }
+
+    private boolean isValidPhaseTransition(Document.Phase currentPhase, Document.Phase newPhase) {
+        switch (currentPhase) {
+            case MINUTA:
+                return newPhase == Document.Phase.REVISAO;
+            case REVISAO:
+                return newPhase == Document.Phase.FINALIZADO || newPhase == Document.Phase.MINUTA;
+            default:
+                return false;
+        }
     }
 
 }
