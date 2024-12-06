@@ -39,7 +39,9 @@ public class Document {
     public enum Phase {
         MINUTA,
         VIGENTE,
-        OBSOLETO
+        OBSOLETO,
+        REVISAO,
+        FINALIZADO
     }
 
     public void incrementVersion() {
