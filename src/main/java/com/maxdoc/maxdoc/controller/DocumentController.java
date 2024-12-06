@@ -82,6 +82,4 @@ public class DocumentController {
         responseDTO.setPhase(document.getPhase().name());
         return responseDTO;
     }
-
-
 }
