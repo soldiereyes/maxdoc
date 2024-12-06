@@ -44,7 +44,7 @@ spring:
 ## Compile e execute o projeto com Maven:
 
 `mvn clean install`
-`nmv spring-boot:run`
+`mvn spring-boot:run`
 
 ## Endpoints Disponíveis
 
